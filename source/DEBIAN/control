@@ -1,0 +1,6 @@
+Package: myalerts-diskusage
+Version: 1.0.0
+Architecture: all
+Depends: bash,coreutils,cron
+Maintainer: Pesti Tamás <ptamas2002@gmail.com>
+Description: Send email on critical disk space usage.

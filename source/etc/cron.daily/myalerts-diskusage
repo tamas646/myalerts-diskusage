@@ -1,0 +1,29 @@
+#!/bin/bash
+
+set -e
+
+CONFIG_FILE="/etc/myalerts/diskusage.config"
+
+. "$CONFIG_FILE"
+
+i=0
+while [[ $i -lt ${#MYALERTS_DISK_CONFIG[@]} ]]
+do
+	disk="${MYALERTS_DISK_CONFIG[$i]}"
+	percentage=$(df "$disk" |grep "$disk" |awk '{ print $5}' |sed 's/%//g')
+	i=$((i+1))
+	if [[ $percentage -gt ${MYALERTS_DISK_CONFIG[$i]} ]]
+	then
+		current=$(df -h "$disk" |grep "$disk" |awk '{ print $3}')
+		full=$(df -h "$disk" |grep "$disk" |awk '{ print $2}')
+		available=$(df -h "$disk" |grep "$disk" |awk '{ print $4}')
+		mail -s "Serverside: DSA" $MYALERTS_EMAIL << EOF
+Disk Space Alert!
+
+The disk space usage at `/bin/hostname` for file system $disk is critical.
+Current usage: $percentage% - $current / $full (available: $available)
+Limit: ${MYALERTS_DISK_CONFIG[$i]}%
+EOF
+	fi
+	i=$((i+1))
+done
